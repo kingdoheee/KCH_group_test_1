@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>생성형 AI 교육 평가</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .info-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 1em;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .question-section {
+            margin-bottom: 35px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .question-number {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+
+        .question-text {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .option {
+            display: block;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .option input[type="radio"],
+        .option input[type="checkbox"] {
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .option label {
+            cursor: pointer;
+            user-select: none;
+            font-size: 1em;
+        }
+
+        .short-answer {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .short-answer:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .submit-section {
+            text-align: center;
+            padding: 30px 0;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 50px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .required {
+            color: #e74c3c;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.5em;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .info-section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 생성형 AI 교육 평가</h1>
+            <p>총 20문제 | 객관식 17문제, 주관식 3문제</p>
+        </div>
+
+        <div class="content">
+            <div id="message" class="message"></div>
+            
+            <form id="assessmentForm">
+                <!-- 응시자 정보 -->
+                <div class="info-section">
+                    <h2 style="margin-bottom: 20px; color: #333;">📋 응시자 정보</h2>
+                    
+                    <div class="form-group">
+                        <label>이름 <span class="required">*</span></label>
+                        <input type="text" name="name" required placeholder="이름을 입력하세요">
+                    </div>
+
+                    <div class="form-group">
+                        <label>소속 <span class="required">*</span></label>
+                        <input type="text" name="organization" required placeholder="소속을 입력하세요">
+                    </div>
+
+                    <div class="form-group">
+                        <label>이메일 <span class="required">*</span></label>
+                        <input type="email" name="email" required placeholder="email@example.com">
+                    </div>
+                </div>
+
+                <!-- 문제 1 -->
+                <div class="question-section">
+                    <span class="question-number">문제 1</span>
+                    <div class="question-text">생성형 AI의 가장 중요한 특징은 무엇인가?</div>
+                    <label class="option">
+                        <input type="radio" name="q1" value="1" required>
+                        <span>① 미리 정의된 규칙에 따라 작동한다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q1" value="2" required>
+                        <span>② 사용자의 입력에 따라 새로운 콘텐츠를 생성한다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q1" value="3" required>
+                        <span>③ 복잡한 수식을 계산하는 데 특화된다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q1" value="4" required>
+                        <span>④ 정해진 답변만 제공한다.</span>
+                    </label>
+                </div>
+
+                <!-- 문제 2 -->
+                <div class="question-section">
+                    <span class="question-number">문제 2</span>
+                    <div class="question-text">Gemini의 가장 큰 특징 중 하나는 텍스트뿐만 아니라 다양한 형태의 데이터를 이해하고 처리하는 '멀티모달(Multimodal)' 능력이다. 다음 중 Gemini의 멀티모달 능력을 가장 잘 보여주는 예시는 무엇인가?</div>
+                    <label class="option">
+                        <input type="radio" name="q2" value="1" required>
+                        <span>① 복잡한 데이터를 Sheets에서 Slides로 옮겨 그래프로 시각화한다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q2" value="2" required>
+                        <span>② 회의록을 요약해 주고, 중요한 내용을 추출한다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q2" value="3" required>
+                        <span>③ 계약서 이미지를 분석하고, 특정 조항이 있는 페이지를 찾아준다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q2" value="4" required>
+                        <span>④ 이메일 내용을 분석해 자동으로 답장 초안을 작성한다.</span>
+                    </label>
+                </div>
+
+                <!-- 문제 3 -->
+                <div class="question-section">
+                    <span class="question-number">문제 3</span>
+                    <div class="question-text">다음 중 Gemini와 Google Workspace (GWS)의 통합 기능이 아닌 것은 무엇인가?</div>
+                    <label class="option">
+                        <input type="radio" name="q3" value="1" required>
+                        <span>① Gemini를 이용해 Google Sheets에서 데이터를 시각화한다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q3" value="2" required>
+                        <span>② Gemini를 이용해 Google Docs에서 보고서 초안을 작성한다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q3" value="3" required>
+                        <span>③ Gemini를 이용해 Google Slides에서 제안서 디자인을 개선한다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q3" value="4" required>
+                        <span>④ Gemini를 이용해 Google Maps에서 길을 찾는다.</span>
+                    </label>
+                </div>
+
+                <!-- 문제 4 -->
+                <div class="question-section">
+                    <span class="question-number">문제 4</span>
+                    <div class="question-text">프롬프트 엔지니어링의 효과적인 프레임워크인 'T.C.R.E.I'에 대한 설명 중 옳지 않은 것은 무엇인가?</div>
+                    <label class="option">
+                        <input type="radio" name="q4" value="1" required>
+                        <span>① Task(작업 정의): AI에게 수행할 구체적인 작업과 페르소나를 명확히 전달한다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q4" value="2" required>
+                        <span>② Context(맥락 제공): AI가 상황을 정확히 이해하도록 배경 정보나 제약 조건을 제공한다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q4" value="3" required>
+                        <span>③ References(참조 자료): AI가 외부 검색 엔진을 통해 최신 정보를 직접 탐색하도록 유도한다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q4" value="4" required>
+                        <span>④ Evaluate(평가): 생성된 결과물이 요구사항을 충족하는지 검토하고 평가한다.</span>
+                    </label>
+                </div>
+
+                <!-- 문제 5 -->
+                <div class="question-section">
+                    <span class="question-number">문제 5</span>
+                    <div class="question-text">다음 중 AI 모델의 '도구의 사용(Tool Use)' 발전 단계에 대한 설명으로 가장 적절한 것은 무엇인가?</div>
+                    <label class="option">
+                        <input type="radio" name="q5" value="1" required>
+                        <span>① 학습된 데이터 내에서만 답변을 생성한다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q5" value="2" required>
+                        <span>② 텍스트 외에 이미지, 음성, 영상까지 이해하고 처리한다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q5" value="3" required>
+                        <span>③ 답변 전에 외부 도구(검색 엔진, 계산기 등)를 호출하여 실시간 정보와 정확한 계산을 보완한다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q5" value="4" required>
+                        <span>④ 목표 달성을 위해 스스로 계획을 세우고 필요한 도구를 실행한다.</span>
+                    </label>
+                </div>
+
+                <!-- 문제 6 -->
+                <div class="question-section">
+                    <span class="question-number">문제 6</span>
+                    <div class="question-text">다음 중 보고서 자동 요약을 위해 가장 효과적인 프롬프트 작성 방법은 무엇인가?</div>
+                    <label class="option">
+                        <input type="radio" name="q6" value="1" required>
+                        <span>① 너를 10년 경력의 재무 분석가로 가정하고, 보고서의 핵심을 요약해달라.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q6" value="2" required>
+                        <span>② 보고서의 주요 내용과 핵심 수치만 발췌하여 표 형태로 정리해달라.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q6" value="3" required>
+                        <span>③ 너를 10년 경력의 재무 분석가로 가정하고, A프로젝트의 투자 타당성을 검토하기 위해 이 보고서를 핵심 요약해달라. 분석 근거가 포함된 3가지 핵심 인사이트를 개조식으로 정리해달라.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q6" value="4" required>
+                        <span>④ 이 보고서 전체를 3번 요약해서, 가장 많이 나온 핵심 단어 3개를 알려달라.</span>
+                    </label>
+                </div>
+
+                <!-- 문제 7 -->
+                <div class="question-section">
+                    <span class="question-number">문제 7</span>
+                    <div class="question-text">Google Sheets에서 Gemini AI를 활용해 웹사이트 데이터를 크롤링할 때, 수식에 포함되는 'xpath'의 역할은 무엇인가?</div>
+                    <label class="option">
+                        <input type="radio" name="q7" value="1" required>
+                        <span>① 웹사이트의 HTML 블록에 특정 스타일을 적용하는 역할을 한다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q7" value="2" required>
+                        <span>② 웹사이트 페이지 내에서 특정 데이터가 포함된 HTML 블록의 위치를 찾아내는 역할을 한다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q7" value="3" required>
+                        <span>③ Google Sheets에 크롤링된 데이터의 형식을 자동으로 변환하는 역할을 한다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q7" value="4" required>
+                        <span>④ 웹사이트의 보안을 우회하여 데이터를 가져오는 역할을 한다.</span>
+                    </label>
+                </div>
+
+                <!-- 문제 8 -->
+                <div class="question-section">
+                    <span class="question-number">문제 8</span>
+                    <div class="question-text">데이터 시각화의 목적과 그에 맞는 Google Sheets의 기능으로 올바른 것을 두 가지 고르시오.</div>
+                    <label class="option">
+                        <input type="checkbox" name="q8" value="1">
+                        <span>① 복잡한 데이터의 핵심 트렌드를 파악하기 위해 차트와 그래프 기능을 활용한다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="checkbox" name="q8" value="2">
+                        <span>② 데이터 입력 및 계산 과정의 정확성을 보장하기 위해 셀 병합 기능을 활용한다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="checkbox" name="q8" value="3">
+                        <span>③ 데이터의 복잡성을 줄이고 이해하기 쉽게 만들기 위해 피벗 테이블 기능을 활용한다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="checkbox" name="q8" value="4">
+                        <span>④ 다른 사용자의 수정 이력을 확인하기 위해 기록(History) 기능을 활용한다.</span>
+                    </label>
+                </div>
+
+                <!-- 문제 9 -->
+                <div class="question-section">
+                    <span class="question-number">문제 9</span>
+                    <div class="question-text">Google Sheets의 '=Gemini' 함수를 활용하여 데이터 분석을 요청할 때, 프롬프트는 어떤 형태로 작성해야 하는가?</div>
+                    <label class="option">
+                        <input type="radio" name="q9" value="1" required>
+                        <span>① 문법을 엄격하게 지켜야 하며, 영문으로만 작성한다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q9" value="2" required>
+                        <span>② =Gemini('프롬프트', '분석할 셀') 형식으로 작성한다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q9" value="3" required>
+                        <span>③ 오직 수치 데이터에 대한 분석만 한다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q9" value="4" required>
+                        <span>④ 별도의 추가 비용이 발생하므로 주의해야 한다.</span>
+                    </label>
+                </div>
+
+                <!-- 문제 10 -->
+                <div class="question-section">
+                    <span class="question-number">문제 10</span>
+                    <div class="question-text">Gmail AI 기능을 활용하여 'A프로젝트 관련 인허가 진행 현황을 요약해줘.'라고 요청했을 때, 답변의 정확도를 높이기 위한 팁으로 가장 거리가 먼 것은 무엇인가?</div>
+                    <label class="option">
+                        <input type="radio" name="q10" value="1" required>
+                        <span>① 크롬 확장 프로그램을 활용하여 질문을 영어로 번역하여 사용한다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q10" value="2" required>
+                        <span>② 반복되는 프롬프트는 'Beeftext'와 같은 텍스트 확장기 앱을 사용한다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q10" value="3" required>
+                        <span>③ 명료하고 구체적인 키워드를 사용한다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q10" value="4" required>
+                        <span>④ 여러 이메일 클라이언트에서 동시에 요청을 보낸다.</span>
+                    </label>
+                </div>
+
+                <!-- 문제 11 -->
+                <div class="question-section">
+                    <span class="question-number">문제 11</span>
+                    <div class="question-text">다음 중 'Self-consistency' 프롬프트 기법에 대한 설명으로 가장 적절한 것은 무엇인가?</div>
+                    <label class="option">
+                        <input type="radio" name="q11" value="1" required>
+                        <span>① 다양한 아이디어를 동시에 탐색하도록 유도하여 여러 대안을 얻는다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q11" value="2" required>
+                        <span>② 동일한 질문을 여러 번 반복해서 가장 많이 나온 답변을 최종 결과로 채택하여 신뢰도를 높인다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q11" value="3" required>
+                        <span>③ 복잡한 문제에 대해 AI가 단계별로 사고 과정을 보여주도록 유도한다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q11" value="4" required>
+                        <span>④ AI에게 특정 역할을 부여하여 답변을 얻는 방법이다.</span>
+                    </label>
+                </div>
+
+                <!-- 문제 12 -->
+                <div class="question-section">
+                    <span class="question-number">문제 12</span>
+                    <div class="question-text">Google Sheets의 '=Gemini' 함수를 활용해 민원 내용을 '소음·진동', '재산권 관련', '소통 관련' 등으로 분류하는 작업은 AI의 어떤 특징을 활용한 것인가?</div>
+                    <label class="option">
+                        <input type="radio" name="q12" value="1" required>
+                        <span>① 수치 계산 기능</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q12" value="2" required>
+                        <span>② 데이터 시각화 기능</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q12" value="3" required>
+                        <span>③ 텍스트 기반 분류 기능</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q12" value="4" required>
+                        <span>④ 이미지 생성 기능</span>
+                    </label>
+                </div>
+
+                <!-- 문제 13 -->
+                <div class="question-section">
+                    <span class="question-number">문제 13</span>
+                    <div class="question-text">Gemini와 Google Slides를 활용하여 발표 자료를 만들 때, Gemini에게 'SCQA 프레임워크를 사용하여 보고서의 서론, 본론, 결론을 논리적으로 구성해달라'고 요청하는 이유는 무엇인가?</div>
+                    <label class="option">
+                        <input type="radio" name="q13" value="1" required>
+                        <span>① Gemini의 답변 생성 속도를 높인다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q13" value="2" required>
+                        <span>② 슬라이드 디자인 템플릿을 자동으로 추천받는다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q13" value="3" required>
+                        <span>③ 보고서의 논리적 구조를 미리 확립하여 발표의 흐름을 명확하게 한다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q13" value="4" required>
+                        <span>④ 보고서에 필요한 데이터를 자동으로 크롤링한다.</span>
+                    </label>
+                </div>
+
+                <!-- 문제 14 -->
+                <div class="question-section">
+                    <span class="question-number">문제 14</span>
+                    <div class="question-text">Gmail AI를 활용해 반복되는 프롬프트를 사용하는 경우, Beeftext와 같은 텍스트 확장기 앱을 사용하는 주된 목적은 무엇인가?</div>
+                    <label class="option">
+                        <input type="radio" name="q14" value="1" required>
+                        <span>① 프롬프트의 보안을 강화한다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q14" value="2" required>
+                        <span>② 프롬프트를 자동으로 영어로 번역한다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q14" value="3" required>
+                        <span>③ 길거나 반복적인 프롬프트 템플릿을 빠르게 삽입한다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q14" value="4" required>
+                        <span>④ 프롬프트의 철자와 문법을 검사한다.</span>
+                    </label>
+                </div>
+
+                <!-- 문제 15 -->
+                <div class="question-section">
+                    <span class="question-number">문제 15</span>
+                    <div class="question-text">4회차 교육에 포함된 NotebookLM은 방대한 양의 문서를 다룰 때 특히 유용하다. 다음 중 NotebookLM을 활용해 얻을 수 있는 이점으로 가장 거리가 먼 것은 무엇인가?</div>
+                    <label class="option">
+                        <input type="radio" name="q15" value="1" required>
+                        <span>① 여러 문서를 한 번에 업로드하여 통합적으로 검색하고 요약할 수 있다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q15" value="2" required>
+                        <span>② 문서 내용에 대해 질의응답을 하고, 답변의 출처를 확인할 수 있다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q15" value="3" required>
+                        <span>③ 문서의 특정 부분을 요약하거나, 새로운 문서를 생성하는 데 도움을 받을 수 있다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q15" value="4" required>
+                        <span>④ 다른 사용자와 실시간으로 문서를 공동 편집할 수 있다.</span>
+                    </label>
+                </div>
+
+                <!-- 문제 16 -->
+                <div class="question-section">
+                    <span class="question-number">문제 16</span>
+                    <div class="question-text">NotebookLM의 'Source Citations(출처 인용)' 기능의 가장 중요한 목적은 무엇인가?</div>
+                    <label class="option">
+                        <input type="radio" name="q16" value="1" required>
+                        <span>① AI 답변의 분량을 줄여 가독성을 높인다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q16" value="2" required>
+                        <span>② AI 답변에 사용된 문장의 어조를 사용자 의도에 맞게 조정한다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q16" value="3" required>
+                        <span>③ AI가 생성한 답변의 내용이 정확한지 사용자가 직접 원본 문서에서 확인할 수 있도록 신뢰성을 제공한다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q16" value="4" required>
+                        <span>④ AI가 문서를 분석하는 속도를 높인다.</span>
+                    </label>
+                </div>
+
+                <!-- 문제 17 -->
+                <div class="question-section">
+                    <span class="question-number">문제 17</span>
+                    <div class="question-text">Google Vids를 활용하여 영상을 제작할 때, 가장 적절하지 않은 행동은 무엇인가?</div>
+                    <label class="option">
+                        <input type="radio" name="q17" value="1" required>
+                        <span>① 프롬프트에 영상에 포함하고 싶은 스토리의 구체적인 내용을 상세히 포함한다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q17" value="2" required>
+                        <span>② 최신 업계 동향을 반영하기 위해 실시간 검색 결과를 영상에 직접 포함하도록 요청한다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q17" value="3" required>
+                        <span>③ 영상 초안이 만들어진 후, 스토리보드나 스크립트를 직접 수정하여 완성도를 높인다.</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q17" value="4" required>
+                        <span>④ 영상에 포함할 아바타의 목소리나 톤을 변경하여 전달력을 높인다.</span>
+                    </label>
+                </div>
+
+                <!-- 문제 18 -->
+                <div class="question-section">
+                    <span class="question-number">문제 18</span>
+                    <div class="question-text">AI가 생성한 답변에 '존재하지 않는 사실'을 그럴듯하게 꾸며내는 현상을 일컫는 용어는 무엇인가?</div>
+                    <textarea class="short-answer" name="q18" required placeholder="답변을 입력하세요"></textarea>
+                </div>
+
+                <!-- 문제 19 -->
+                <div class="question-section">
+                    <span class="question-number">문제 19</span>
+                    <div class="question-text">'사업 타당성 분석'과 같은 복잡한 업무를 위해, AI에게 '전문가 역할'을 부여하는 프롬프트 기법을 무엇이라고 하는가?</div>
+                    <textarea class="short-answer" name="q19" required placeholder="답변을 입력하세요"></textarea>
+                </div>
+
+                <!-- 문제 20 -->
+                <div class="question-section">
+                    <span class="question-number">문제 20</span>
+                    <div class="question-text">3회차 실습에서 Gmail에서 추출한 뉴스 데이터를 Google Docs 보고서 양식으로 자동 생성하기 위해 사용한 프로그래밍 도구는 무엇인가?</div>
+                    <textarea class="short-answer" name="q20" required placeholder="답변을 입력하세요"></textarea>
+                </div>
+
+                <div class="submit-section">
+                    <button type="submit" class="submit-btn" id="submitBtn">제출하기</button>
+                </div>
+            </form>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p style="margin-top: 15px; color: #667eea; font-weight: 600;">제출 중입니다...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('assessmentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const form = e.target;
+            const formData = new FormData(form);
+            const submitBtn = document.getElementById('submitBtn');
+            const loading = document.getElementById('loading');
+            const messageDiv = document.getElementById('message');
+            
+            // 문제 8 체크박스 검증 (2개 선택해야 함)
+            const q8Checkboxes = document.querySelectorAll('input[name="q8"]:checked');
+            if (q8Checkboxes.length !== 2) {
+                showMessage('문제 8번은 정확히 2개를 선택해야 합니다.', 'error');
+                return;
+            }
+            
+            // 데이터 준비
+            const data = {
+                name: formData.get('name'),
+                organization: formData.get('organization'),
+                email: formData.get('email'),
+                q1: formData.get('q1'),
+                q2: formData.get('q2'),
+                q3: formData.get('q3'),
+                q4: formData.get('q4'),
+                q5: formData.get('q5'),
+                q6: formData.get('q6'),
+                q7: formData.get('q7'),
+                q8: Array.from(q8Checkboxes).map(cb => cb.value).join(','),
+                q9: formData.get('q9'),
+                q10: formData.get('q10'),
+                q11: formData.get('q11'),
+                q12: formData.get('q12'),
+                q13: formData.get('q13'),
+                q14: formData.get('q14'),
+                q15: formData.get('q15'),
+                q16: formData.get('q16'),
+                q17: formData.get('q17'),
+                q18: formData.get('q18'),
+                q19: formData.get('q19'),
+                q20: formData.get('q20'),
+                timestamp: new Date().toISOString()
+            };
+            
+            // UI 업데이트
+            submitBtn.disabled = true;
+            loading.style.display = 'block';
+            form.style.display = 'none';
+            
+            // Google Apps Script Web App URL을 여기에 입력하세요
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbwwX7Nu1X7bWkt395TmoBRmRMu71aUu4qVnisVf095Bu7Bz4MSNTEd29O6XFf89AvA6/exec';
+            
+            fetch(scriptURL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(() => {
+                loading.style.display = 'none';
+                showMessage('✅ 평가가 성공적으로 제출되었습니다! 감사합니다.', 'success');
+                form.reset();
+            })
+            .catch((error) => {
+                loading.style.display = 'none';
+                form.style.display = 'block';
+                submitBtn.disabled = false;
+                showMessage('❌ 제출 중 오류가 발생했습니다. 다시 시도해주세요.', 'error');
+                console.error('Error:', error);
+            });
+        });
+        
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = 'message ' + type;
+            messageDiv.style.display = 'block';
+            
+            // 성공 메시지는 자동으로 사라지지 않음
+            if (type === 'error') {
+                setTimeout(() => {
+                    messageDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+    </script>
+</body>
+</html>
